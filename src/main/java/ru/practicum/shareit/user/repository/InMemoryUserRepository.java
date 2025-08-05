@@ -16,7 +16,7 @@ public class InMemoryUserRepository implements UserRepository {
     private static Long ID_COUNT = 0L;
 
     private Long getNextId() {
-        return ID_COUNT++;
+        return (++ID_COUNT);
     }
 
     @Override
