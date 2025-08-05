@@ -1,10 +1,13 @@
 package ru.practicum.shareit;
 
-import lombok.AllArgsConstructor;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Getter
+@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class ErrorResponse {
-    private final String message;
+    String message;
 }
