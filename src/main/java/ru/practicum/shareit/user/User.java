@@ -1,5 +1,6 @@
 package ru.practicum.shareit.user;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -27,5 +28,6 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
     String name;
+    @Column(nullable = false, unique = true)
     String email;
 }
