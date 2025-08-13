@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.service;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.Item;
@@ -14,6 +15,7 @@ import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -21,12 +23,14 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Data
+@Transactional(readOnly = true)
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository repository;
     private final UserRepository userRepository;
     private final ItemMapper mapper;
 
     @Override
+    @Transactional
     public ItemDto create(ItemCreateDto itemCreateDto, Long ownerId) {
         User owner = getOwnerById(ownerId);
         Item item = mapper.toModel(itemCreateDto);
@@ -35,6 +39,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public ItemDto update(ItemUpdateDto itemUpdateDto, Long ownerId) {
         User owner = getOwnerById(ownerId);
         Item item = mapper.toModel(itemUpdateDto);
@@ -55,7 +60,7 @@ public class ItemServiceImpl implements ItemService {
         if (itemUpdateDto.getAvailable() != null) {
             savedItem.setAvailable(itemUpdateDto.getAvailable());
         }
-        return mapper.toDto(repository.update(savedItem));
+        return mapper.toDto(repository.save(savedItem));
     }
 
     @Override
@@ -70,21 +75,23 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public Collection<ItemDto> getItemsByOwnerId(Long ownerId) {
         User owner = getOwnerById(ownerId);
-        List<Item> list = repository.getItemsByOwner(owner);
+        List<Item> list = repository.getItemsByOwnerId(ownerId);
         return list.stream().map(mapper::toDto).toList();
     }
 
     @Override
     public Collection<ItemDto> searchItemsWithText(String text, Long ownerId) {
+        if ((text == null) || (text.isBlank())) return new ArrayList<>();
         List<Item> list = repository.searchItemsWithText(text, ownerId);
         return list.stream().map(mapper::toDto).toList();
     }
 
     private User getOwnerById(Long ownerId) {
-        User owner = userRepository.getUserById(ownerId);
-        if (owner == null) {
+        Optional<User> optUser = userRepository.getUserById(ownerId);
+        if (optUser.isEmpty()) {
             throw new NotFoundException(String.format("Не найден пользователь с id = %d", ownerId));
         }
+        User owner = optUser.get();
         return owner;
     }
 }
