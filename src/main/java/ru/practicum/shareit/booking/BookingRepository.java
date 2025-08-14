@@ -2,10 +2,12 @@ package ru.practicum.shareit.booking;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.user.User;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
@@ -51,4 +53,8 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     @Query("SELECT b FROM Booking b WHERE b.item.owner = ?1 AND b.startDate > CURRENT_TIMESTAMP " +
             "ORDER BY b.startDate DESC")
     List<Booking> findByOwnerFuture(User owner);
+
+    Optional<Booking> findFirstByItemAndEndDateBeforeOrderByEndDateDesc(Item item, LocalDateTime now);
+
+    Optional<Booking> findFirstByItemAndStartDateAfterOrderByStartDateDesc(Item item, LocalDateTime now);
 }

@@ -12,7 +12,7 @@ public interface BookingService {
 
     BookingDto approved(Long bookingId, Boolean approved, Long userId);
 
-    Collection<BookingDto> getBookingByUser(Long userId, BookingRequestState state);
+    Collection<BookingDto> getBookingsByUser(Long userId, BookingRequestState state);
 
     BookingDto getBookingById(Long bookingId, Long userId);
 

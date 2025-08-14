@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item.service;
 
+import ru.practicum.shareit.item.dto.ItemBookingDto;
 import ru.practicum.shareit.item.dto.ItemCreateDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemUpdateDto;
@@ -14,7 +15,7 @@ public interface ItemService {
 
     ItemDto getItemById(Long itemId);
 
-    Collection<ItemDto> getItemsByOwnerId(Long ownerId);
+    Collection<ItemBookingDto> getItemsByOwnerId(Long ownerId);
 
     Collection<ItemDto> searchItemsWithText(String text, Long ownerId);
 }

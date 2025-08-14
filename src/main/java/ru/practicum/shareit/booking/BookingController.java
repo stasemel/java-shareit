@@ -46,26 +46,29 @@ public class BookingController {
     }
 
     @GetMapping
-    public Collection<BookingDto> getBookingByUser(
+    public Collection<BookingDto> getBookingsByUser(
             @Valid @RequestHeader("X-Sharer-User-Id") Long userId,
             @Valid @Nullable @PathVariable(name = "state", required = false) BookingRequestState state) {
+        log.info("Get all bookings for user {} with state {}", userId, state);
         if (state == null) {
             state = BookingRequestState.ALL;
         }
-        return service.getBookingByUser(userId, state);
+        return service.getBookingsByUser(userId, state);
     }
 
 
     @GetMapping("/{bookingId}")
     public BookingDto getBookingById(@Valid @PathVariable Long bookingId,
                                      @Valid @RequestHeader("X-Sharer-User-Id") Long userId) {
+        log.info("Get booking id = {} for user {}", bookingId, userId);
         return service.getBookingById(bookingId, userId);
     }
 
     @GetMapping("/owner")
-    public List<BookingDto> getBookingByOwnerId(
+    public List<BookingDto> getBookingsByOwnerId(
             @Valid @RequestHeader("X-Sharer-User-Id") Long userId,
             @Valid @Nullable @PathVariable(name = "state", required = false) BookingRequestState state) {
+        log.info("Get bookings by owner {} with state {}", userId, state);
         if (state == null) state = BookingRequestState.ALL;
         return service.getBookingByOwnerId(userId, state);
     }

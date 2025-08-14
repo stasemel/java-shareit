@@ -71,7 +71,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public Collection<BookingDto> getBookingByUser(Long userId, BookingRequestState state) {
+    public Collection<BookingDto> getBookingsByUser(Long userId, BookingRequestState state) {
         User booker = getUser(userId);
         switch (state) {
             case PAST:
