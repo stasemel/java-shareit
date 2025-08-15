@@ -1,32 +1,25 @@
 package ru.practicum.shareit.booking.dto;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldDefaults;
-import ru.practicum.shareit.booking.BookingStatus;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.user.dto.UserDto;
 
 import java.time.LocalDateTime;
 
-/**
- * TODO Sprint add-bookings.
- */
 @AllArgsConstructor
 @Getter
 @Setter
-@Builder
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 @ToString
-public class BookingDto {
-    Long id;
+public class BookingCreateDto {
+    @NotNull(message = "Дата начала аренды не может быть пустой")
     LocalDateTime start;
+    @NotNull(message = "Дата окончания аренды не может быть пустой")
     LocalDateTime end;
-    ItemDto item;
-    UserDto booker;
-    BookingStatus status;
+    @NotNull(message = "Необходимо указать вешь для аренды")
+    Long itemId;
 }
