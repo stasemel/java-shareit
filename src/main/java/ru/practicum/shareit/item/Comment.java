@@ -17,7 +17,7 @@ import ru.practicum.shareit.user.User;
 import java.time.Instant;
 
 @Entity
-@Table(name = "items")
+@Table(name = "comments")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -32,5 +32,5 @@ public class Comment {
     @ManyToOne
     User author;
     String text;
-    Instant created = Instant.now();
+    final Instant created = Instant.now();
 }

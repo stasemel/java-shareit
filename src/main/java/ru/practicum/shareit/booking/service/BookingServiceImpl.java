@@ -73,26 +73,20 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public Collection<BookingDto> getBookingsByUser(Long userId, BookingRequestState state) {
         User booker = getUser(userId);
-        switch (state) {
-            case PAST:
-                return returnListDto(repository.findByBookerIdPast(booker));
-            case CURRENT:
-                return returnListDto(repository.findByBookerIdCurrent(booker));
-            case FUTURE:
-                return returnListDto(repository.findByBookerIdFuture(booker));
-            case WAITING:
-                return returnListDto(repository.findByBookerAndStatusOrderByStartDateDesc(
-                        booker,
-                        BookingStatus.WAITING)
-                );
-            case REJECTED:
-                return returnListDto(repository.findByBookerAndStatusOrderByStartDateDesc(
-                        booker,
-                        BookingStatus.REJECTED)
-                );
-            default:
-                return returnListDto(repository.findByBookerIdOrderByStartDateDesc(userId));
-        }
+        return switch (state) {
+            case PAST -> returnListDto(repository.findByBookerIdPast(booker));
+            case CURRENT -> returnListDto(repository.findByBookerIdCurrent(booker));
+            case FUTURE -> returnListDto(repository.findByBookerIdFuture(booker));
+            case WAITING -> returnListDto(repository.findByBookerAndStatusOrderByStartDateDesc(
+                    booker,
+                    BookingStatus.WAITING)
+            );
+            case REJECTED -> returnListDto(repository.findByBookerAndStatusOrderByStartDateDesc(
+                    booker,
+                    BookingStatus.REJECTED)
+            );
+            default -> returnListDto(repository.findByBookerIdOrderByStartDateDesc(userId));
+        };
     }
 
     @Override
@@ -108,20 +102,16 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingDto> getBookingByOwnerId(Long userId, BookingRequestState state) {
         User owner = getUser(userId);
-        switch (state) {
-            case PAST:
-                return returnListDto(repository.findByOwnerPast(owner));
-            case CURRENT:
-                return returnListDto(repository.findByOwnerCurrent(owner));
-            case FUTURE:
-                return returnListDto(repository.findByOwnerFuture(owner));
-            case WAITING:
-                return returnListDto(repository.findByItemOwnerAndStatusOrderByStartDateDesc(owner, BookingStatus.WAITING));
-            case REJECTED:
-                return returnListDto(repository.findByItemOwnerAndStatusOrderByStartDateDesc(owner, BookingStatus.REJECTED));
-            default:
-                return returnListDto(repository.findByItemOwnerOrderByStartDateDesc(owner));
-        }
+        return switch (state) {
+            case PAST -> returnListDto(repository.findByOwnerPast(owner));
+            case CURRENT -> returnListDto(repository.findByOwnerCurrent(owner));
+            case FUTURE -> returnListDto(repository.findByOwnerFuture(owner));
+            case WAITING ->
+                    returnListDto(repository.findByItemOwnerAndStatusOrderByStartDateDesc(owner, BookingStatus.WAITING));
+            case REJECTED ->
+                    returnListDto(repository.findByItemOwnerAndStatusOrderByStartDateDesc(owner, BookingStatus.REJECTED));
+            default -> returnListDto(repository.findByItemOwnerOrderByStartDateDesc(owner));
+        };
     }
 
     private List<BookingDto> returnListDto(List<Booking> list) {
@@ -137,6 +127,15 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private void validateBooking(Long itemId, LocalDateTime start, LocalDateTime end) {
+        LocalDateTime currentTime = LocalDateTime.now().minusMinutes(1); //запас времени на обработку запроса
+        if (start.isBefore(currentTime)) {
+            throw new IllegalArgumentException(String.format("Дата начала бронирования %s не может быть раньше текущей %s",
+                    start, currentTime));
+        }
+        if (end.isBefore(currentTime)) {
+            throw new IllegalArgumentException(String.format("Дата окончания бронирования %s не может быть раньше текущей %s",
+                    end, currentTime));
+        }
         if (start.isAfter(end)) {
             throw new IllegalArgumentException(
                     String.format("Дата начала аренды %s не может быть позже окончания %s", start, end)

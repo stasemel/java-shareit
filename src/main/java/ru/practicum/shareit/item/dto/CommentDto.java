@@ -8,8 +8,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import java.time.Instant;
 
 @Getter
 @Setter
@@ -17,14 +16,9 @@ import java.util.List;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @ToString
-public class ItemBookingDto {
+public class CommentDto {
     Long id;
-    Long ownerId;
-    String name;
-    String description;
-    Long requestId;
-    Boolean available;
-    LocalDateTime lastBooking;
-    LocalDateTime nextBooking;
-    List<CommentDto> comments;
+    String authorName;
+    String text;
+    Instant created;
 }

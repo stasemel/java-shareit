@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import ru.practicum.shareit.item.dto.CommentCreateDto;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemBookingDto;
 import ru.practicum.shareit.item.dto.ItemCreateDto;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -51,9 +53,9 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto getItem(@Valid @PathVariable Long itemId) {
+    public ItemBookingDto getItem(@Valid @PathVariable Long itemId, @Valid @RequestHeader("X-Sharer-User-Id") Long userId) {
         log.info("Get item id = {}", itemId);
-        return service.getItemById(itemId);
+        return service.getItemBookingDtoById(itemId, userId);
     }
 
     @GetMapping
@@ -69,6 +71,14 @@ public class ItemController {
         log.info("Search items by text = {} ownerId = {}", text, ownerId);
         validateOwner(ownerId);
         return service.searchItemsWithText(text, ownerId);
+    }
+
+    @PostMapping("/{itemId}/comment")
+    public CommentDto createComment(@Valid @RequestBody CommentCreateDto commentCreateDto,
+                                    @Valid @PathVariable Long itemId,
+                                    @Valid @RequestHeader("X-Sharer-User-Id") Long userId) {
+        log.info("Create comment for item id = {}, user id = {}, comment = {}", itemId, userId, commentCreateDto);
+        return service.createComment(commentCreateDto, itemId, userId);
     }
 
     private void validateOwner(Long ownerId) {

@@ -54,7 +54,9 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             "ORDER BY b.startDate DESC")
     List<Booking> findByOwnerFuture(User owner);
 
-    Optional<Booking> findFirstByItemAndEndDateBeforeOrderByEndDateDesc(Item item, LocalDateTime now);
+    Optional<Booking> findFirstByItemAndBookerAndEndDateBefore(Item item, User user, LocalDateTime now);
 
-    Optional<Booking> findFirstByItemAndStartDateAfterOrderByStartDateDesc(Item item, LocalDateTime now);
+    Optional<Booking> findFirstByItemAndEndDateBeforeAndStatusOrderByEndDateDesc(Item item, LocalDateTime now, BookingStatus bookingStatus);
+
+    Optional<Booking> findFirstByItemAndStartDateAfterAndStatusOrderByStartDateDesc(Item item, LocalDateTime now, BookingStatus bookingStatus);
 }
