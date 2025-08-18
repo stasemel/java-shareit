@@ -1,12 +1,77 @@
 package ru.practicum.shareit.booking;
 
+import jakarta.annotation.Nullable;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import ru.practicum.shareit.Utility;
+import ru.practicum.shareit.booking.dto.BookingCreateDto;
+import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.service.BookingService;
+
+import java.util.Collection;
+import java.util.List;
 
 /**
  * TODO Sprint add-bookings.
  */
 @RestController
 @RequestMapping(path = "/bookings")
+@Slf4j
+@RequiredArgsConstructor
 public class BookingController {
+    private final BookingService service;
+
+    @PostMapping
+    public BookingDto create(@Valid @RequestBody BookingCreateDto bookingCreateDto,
+                             @Valid @RequestHeader(Utility.HEADER_USER) Long bookerId) {
+        log.info("Create booking = {}, booker = {}", bookingCreateDto, bookerId);
+        return service.create(bookingCreateDto, bookerId);
+    }
+
+    @PatchMapping("/{bookingId}")
+    public BookingDto approved(@Valid @PathVariable Long bookingId,
+                               @Valid @RequestParam(Utility.REQUEST_PARAM_APPROVED) Boolean approved,
+                               @Valid @RequestHeader(Utility.HEADER_USER) Long userId) {
+        log.info("Approved booking id = {}, approved = {}", bookingId, approved);
+        return service.approved(bookingId, approved, userId);
+    }
+
+    @GetMapping
+    public Collection<BookingDto> getBookingsByUser(
+            @Valid @RequestHeader(Utility.HEADER_USER) Long userId,
+            @Valid @Nullable @RequestParam(name = Utility.REQUEST_PARAM_STATE, required = false) BookingRequestState state) {
+        log.info("Get all bookings for user {} with state {}", userId, state);
+        if (state == null) {
+            state = BookingRequestState.ALL;
+        }
+        return service.getBookingsByUser(userId, state);
+    }
+
+
+    @GetMapping("/{bookingId}")
+    public BookingDto getBookingById(@Valid @PathVariable Long bookingId,
+                                     @Valid @RequestHeader(Utility.HEADER_USER) Long userId) {
+        log.info("Get booking id = {} for user {}", bookingId, userId);
+        return service.getBookingById(bookingId, userId);
+    }
+
+    @GetMapping("/owner")
+    public List<BookingDto> getBookingsByOwnerId(
+            @Valid @RequestHeader(Utility.HEADER_USER) Long userId,
+            @Valid @Nullable @RequestParam(name = Utility.REQUEST_PARAM_STATE, required = false) BookingRequestState state) {
+        log.info("Get bookings by owner {} with state {}", userId, state);
+        if (state == null) state = BookingRequestState.ALL;
+        return service.getBookingByOwnerId(userId, state);
+    }
 }
+

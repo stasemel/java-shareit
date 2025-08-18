@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 
 @AllArgsConstructor
@@ -12,6 +13,7 @@ import lombok.experimental.FieldDefaults;
 @Setter
 @Builder
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
+@ToString
 public class UserDto {
     Long id;
     String name;
