@@ -21,4 +21,5 @@ public class ItemCreateDto {
     String description;
     @NotNull(message = "Нужно указать, свободна или нет эта вещь")
     Boolean available;
+    Long requestId;
 }

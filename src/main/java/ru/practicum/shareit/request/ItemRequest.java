@@ -29,12 +29,12 @@ import java.time.Instant;
 public class ItemRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    Long id;
 
     String description;
 
     @ManyToOne
     User requestor;
 
-    Instant created;
+    final Instant created = Instant.now();
 }

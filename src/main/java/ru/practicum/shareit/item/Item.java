@@ -5,7 +5,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -31,7 +30,7 @@ public class Item {
     User owner;
     String name;
     String description;
-    @OneToOne
+    @ManyToOne
     ItemRequest request;
     Boolean available;
 }

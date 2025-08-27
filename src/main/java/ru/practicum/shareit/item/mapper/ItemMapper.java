@@ -5,6 +5,7 @@ import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.dto.ItemBookingDto;
 import ru.practicum.shareit.item.dto.ItemCreateDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemForRequestDto;
 import ru.practicum.shareit.item.dto.ItemUpdateDto;
 
 @Component
@@ -42,6 +43,14 @@ public class ItemMapper {
                 .name(item.getName())
                 .description(item.getDescription())
                 .available(item.getAvailable())
+                .ownerId(item.getOwner().getId())
+                .build();
+    }
+
+    public ItemForRequestDto toRequestDto(Item item) {
+        return ItemForRequestDto.builder()
+                .id(item.getId())
+                .name(item.getName())
                 .ownerId(item.getOwner().getId())
                 .build();
     }

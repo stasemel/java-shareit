@@ -1,4 +1,4 @@
-package ru.practicum.shareit.request.dto;
+package ru.practicum.shareit.item.dto;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -8,23 +8,14 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 
-import java.time.Instant;
-
-/**
- * TODO Sprint add-item-requests.
- */
 @Getter
 @Setter
 @AllArgsConstructor
-@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @ToString
-public class ItemRequestDto {
+@Builder
+public class ItemForRequestDto {
     Long id;
-
-    String description;
-
-    Long requestorId;
-
-    Instant created;
+    String name;
+    Long ownerId;
 }
