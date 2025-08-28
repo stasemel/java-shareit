@@ -1,96 +1,79 @@
 package ru.practicum.shareit.request;
 
-import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.BeforeEach;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.shareit.item.dto.ItemCreateDto;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.service.ItemService;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import ru.practicum.shareit.Utility;
 import ru.practicum.shareit.request.dto.ItemRequestCreateDto;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestWithItemsDto;
 import ru.practicum.shareit.request.service.ItemRequestService;
-import ru.practicum.shareit.user.dto.UserCreateDto;
-import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.service.UserService;
 
+import java.time.Instant;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@Transactional
-@SpringBootTest
-@RequiredArgsConstructor(onConstructor_ = @Autowired)
+@WebMvcTest(controllers = ItemRequestController.class)
 class ItemRequestControllerTest {
-    private final ItemRequestService service;
-    private final UserService userService;
-    private final ItemService itemService;
-    private UserDto requestorUserDto;
-    private UserDto otherUserDto;
+    @Autowired
+    ObjectMapper mapper;
+    @Autowired
+    private MockMvc mvc;
 
-    @BeforeEach
-    void setUp() {
-        UserCreateDto userCreateDto = new UserCreateDto("User Useroff", "useroff@yandex.ru");
-        this.requestorUserDto = userService.create(userCreateDto);
-        UserCreateDto otherUserCreateDto = new UserCreateDto("Other Useroff", "other.useroff@yandex.ru");
-        this.otherUserDto = userService.create(otherUserCreateDto);
+    @MockBean
+    ItemRequestService service;
+
+    private final ItemRequestDto itemRequestDto = new ItemRequestDto(1L, "Description", 2L, Instant.now());
+    private final ItemRequestWithItemsDto itemRequestWithItemsDto = new ItemRequestWithItemsDto(3L, Instant.now(), "Description With Items", null);
+
+    @Test
+    void createItemRequest() throws Exception {
+        ItemRequestCreateDto itemRequestCreateDto = new ItemRequestCreateDto("Text");
+        when(service.create(any(), any())).thenReturn(itemRequestDto);
+        mvc.perform(post("/requests")
+                        .content(mapper.writeValueAsString(itemRequestCreateDto))
+                        .header(Utility.HEADER_USER, 2L)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.description").value(itemRequestDto.getDescription()));
     }
 
     @Test
-    void createItemRequest() {
-        ItemRequestCreateDto itemRequestCreateDto = new ItemRequestCreateDto("I want some items");
-
-        ItemRequestDto itemRequestDto = service.create(itemRequestCreateDto, requestorUserDto.getId());
-
-        assertThat(itemRequestDto.getId(), notNullValue());
-        assertThat(itemRequestDto.getDescription(), equalTo(itemRequestCreateDto.getDescription()));
-        assertThat(itemRequestDto.getRequestorId(), equalTo(requestorUserDto.getId()));
-    }
-
-    private ItemRequestDto createRequest() {
-        ItemRequestCreateDto itemRequestCreateDto = new ItemRequestCreateDto("I want some items");
-        return service.create(itemRequestCreateDto, requestorUserDto.getId());
-
+    void getRequestsByUser() throws Exception {
+        List<ItemRequestWithItemsDto> list = List.of(itemRequestWithItemsDto);
+        when(service.getRequestsByUser(any())).thenReturn(list);
+        mvc.perform(get("/requests").header(Utility.HEADER_USER, 2L))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].description").value(itemRequestWithItemsDto.getDescription()));
     }
 
     @Test
-    void getRequestsByUser() {
-        ItemRequestDto itemRequestDto = createRequest();
-
-        List<ItemRequestWithItemsDto> list = service.getRequestsByUser(requestorUserDto.getId());
-        List<ItemRequestWithItemsDto> otherList = service.getRequestsByUser(otherUserDto.getId());
-
-        assertThat(list.size(), equalTo(1));
-        assertThat(list.getFirst().getId(), equalTo(itemRequestDto.getId()));
-        assertThat(otherList.size(), equalTo(0));
+    void getRequestsByOtherUsers() throws Exception {
+        List<ItemRequestDto> list = List.of(itemRequestDto);
+        when(service.getRequestsByOtherUsers(any())).thenReturn(list);
+        mvc.perform(get("/requests/all").header(Utility.HEADER_USER, 2L))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].description").value(itemRequestDto.getDescription()));
     }
 
     @Test
-    void getRequestsByOtherUsers() {
-        ItemRequestDto itemRequestDto = createRequest();
-        List<ItemRequestDto> otherList = service.getRequestsByOtherUsers(otherUserDto.getId());
-        List<ItemRequestDto> requestorList = service.getRequestsByOtherUsers(requestorUserDto.getId());
-
-        assertThat(otherList.size(), equalTo(1));
-        assertThat(otherList.getFirst().getId(), equalTo(itemRequestDto.getId()));
-        assertThat(requestorList.size(), equalTo(0));
-    }
-
-    @Test
-    void getRequestById() {
-        ItemRequestDto itemRequestDto = createRequest();
-        ItemCreateDto itemCreateDto = new ItemCreateDto("Item", "Description", true, itemRequestDto.getId());
-        ItemDto itemDto = itemService.create(itemCreateDto, otherUserDto.getId());
-
-        ItemRequestWithItemsDto itemRequestWithItemsDto = service.getRequestsById(itemRequestDto.getId());
-
-        assertThat(itemRequestWithItemsDto.getId(), equalTo(itemRequestDto.getId()));
-        assertThat(itemRequestWithItemsDto.getItems().size(), equalTo(1));
-        assertThat(itemRequestWithItemsDto.getItems().getFirst().getId(), equalTo(itemDto.getId()));
+    void getRequestById() throws Exception {
+        when(service.getRequestsById(any())).thenReturn(itemRequestWithItemsDto);
+        mvc.perform(get("/requests/1").header(Utility.HEADER_USER, 2L))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.description").value(itemRequestWithItemsDto.getDescription()));
     }
 }
