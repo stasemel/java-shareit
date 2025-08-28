@@ -52,7 +52,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Override
     public List<ItemRequestDto> getRequestsByOtherUsers(Long userId) {
         User user = itemService.getUser(userId);
-        List<ItemRequest> list = repository.findByRequestorIdNotOrderByCreatedDesc(userId);
+        List<ItemRequest> list = repository.findByRequestorIdNotOrderByCreatedDesc(user.getId());
         return list.stream().map(mapper::toDto).toList();
     }
 
