@@ -82,8 +82,8 @@ class UserControllerTest {
 
     @Test
     void delete() throws Exception {
-        doThrow(new NotFoundException("text")).
-                doNothing().when(userService).delete(3L);
+        doThrow(new NotFoundException("text"))
+                .doNothing().when(userService).delete(3L);
         doNothing().when(userService).delete(2L);
         mvc.perform(
                         MockMvcRequestBuilders.delete("/users/{userId}", 2L))
