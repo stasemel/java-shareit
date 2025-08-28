@@ -83,7 +83,8 @@ class ItemControllerTest {
     void getItemsByOwner() throws Exception {
         List<ItemBookingDto> list = List.of(itemBookingDto);
         when(service.getItemsByOwnerId(any())).thenReturn(list);
-        mvc.perform(get("/items").header(Utility.HEADER_USER, 2L))
+        mvc.perform(get("/items")
+                        .header(Utility.HEADER_USER, 2L))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].name").value(itemBookingDto.getName()));
@@ -93,7 +94,8 @@ class ItemControllerTest {
     void searchItems() throws Exception {
         List<ItemDto> list = List.of(itemDto);
         when(service.searchItemsWithText(any(), any())).thenReturn(list);
-        mvc.perform(get("/items/search?text=text").header(Utility.HEADER_USER, 2L))
+        mvc.perform(get("/items/search?text=text")
+                        .header(Utility.HEADER_USER, 2L))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].name").value(itemDto.getName()));

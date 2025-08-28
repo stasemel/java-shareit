@@ -78,7 +78,8 @@ class BookingControllerTest {
     @Test
     void getBookingById() throws Exception {
         when(service.getBookingById(any(), any())).thenReturn(bookingDto);
-        mvc.perform(get("/bookings/1").header(Utility.HEADER_USER, 2L))
+        mvc.perform(get("/bookings/1")
+                        .header(Utility.HEADER_USER, 2L))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("APPROVED"));
     }

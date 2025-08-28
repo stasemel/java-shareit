@@ -53,7 +53,8 @@ class ItemRequestControllerTest {
     void getRequestsByUser() throws Exception {
         List<ItemRequestWithItemsDto> list = List.of(itemRequestWithItemsDto);
         when(service.getRequestsByUser(any())).thenReturn(list);
-        mvc.perform(get("/requests").header(Utility.HEADER_USER, 2L))
+        mvc.perform(get("/requests")
+                        .header(Utility.HEADER_USER, 2L))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].description").value(itemRequestWithItemsDto.getDescription()));
@@ -63,7 +64,8 @@ class ItemRequestControllerTest {
     void getRequestsByOtherUsers() throws Exception {
         List<ItemRequestDto> list = List.of(itemRequestDto);
         when(service.getRequestsByOtherUsers(any())).thenReturn(list);
-        mvc.perform(get("/requests/all").header(Utility.HEADER_USER, 2L))
+        mvc.perform(get("/requests/all")
+                        .header(Utility.HEADER_USER, 2L))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].description").value(itemRequestDto.getDescription()));
@@ -72,7 +74,8 @@ class ItemRequestControllerTest {
     @Test
     void getRequestById() throws Exception {
         when(service.getRequestsById(any())).thenReturn(itemRequestWithItemsDto);
-        mvc.perform(get("/requests/1").header(Utility.HEADER_USER, 2L))
+        mvc.perform(get("/requests/1")
+                        .header(Utility.HEADER_USER, 2L))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.description").value(itemRequestWithItemsDto.getDescription()));
     }
