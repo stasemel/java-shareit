@@ -39,7 +39,6 @@ public class ItemController {
     public ItemDto create(@Valid @RequestBody ItemCreateDto itemCreateDto,
                           @Valid @RequestHeader(Utility.HEADER_USER) Long ownerId) {
         log.info("Create item {}, ownerId = {}", itemCreateDto, ownerId);
-        validateOwner(ownerId);
         return service.create(itemCreateDto, ownerId);
     }
 
@@ -48,7 +47,6 @@ public class ItemController {
                           @Valid @RequestHeader(Utility.HEADER_USER) Long ownerId,
                           @Valid @PathVariable Long itemId) {
         log.info("Update item {}, id = {}, ownerId = {}", itemUpdateDto, itemId, ownerId);
-        validateOwner(ownerId);
         itemUpdateDto.setId(itemId);
         return service.update(itemUpdateDto, ownerId);
     }
@@ -63,7 +61,6 @@ public class ItemController {
     @GetMapping
     public Collection<ItemBookingDto> getItemsByOwner(@Valid @RequestHeader(Utility.HEADER_USER) Long ownerId) {
         log.info("Get items by ownerId = {}", ownerId);
-        validateOwner(ownerId);
         return service.getItemsByOwnerId(ownerId);
     }
 
@@ -71,7 +68,6 @@ public class ItemController {
     public Collection<ItemDto> searchItems(@Valid @RequestHeader(Utility.HEADER_USER) Long ownerId,
                                            @Valid @RequestParam(Utility.REQUEST_PARAM_SEARCH_TEXT) String text) {
         log.info("Search items by text = {} ownerId = {}", text, ownerId);
-        validateOwner(ownerId);
         return service.searchItemsWithText(text, ownerId);
     }
 
@@ -83,9 +79,9 @@ public class ItemController {
         return service.createComment(commentCreateDto, itemId, userId);
     }
 
-    private void validateOwner(Long ownerId) {
-        if (ownerId == null) {
-            throw new IllegalArgumentException("Id владельца должен быть указан");
-        }
-    }
+//    private void validateOwner(Long ownerId) {
+//        if (ownerId == null) {
+//            throw new IllegalArgumentException("Id владельца должен быть указан");
+//        }
+//    }
 }

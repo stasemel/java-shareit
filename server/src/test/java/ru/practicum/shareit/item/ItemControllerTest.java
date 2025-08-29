@@ -91,6 +91,14 @@ class ItemControllerTest {
     }
 
     @Test
+    void getItemsByNullOwnerMustBeError() throws Exception {
+        List<ItemBookingDto> list = List.of(itemBookingDto);
+        when(service.getItemsByOwnerId(any())).thenReturn(list);
+        mvc.perform(get("/items"))
+                .andExpect(status().is5xxServerError());
+    }
+
+    @Test
     void searchItems() throws Exception {
         List<ItemDto> list = List.of(itemDto);
         when(service.searchItemsWithText(any(), any())).thenReturn(list);

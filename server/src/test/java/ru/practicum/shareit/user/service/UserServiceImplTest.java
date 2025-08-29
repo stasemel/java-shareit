@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.dto.UserCreateDto;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -49,7 +50,7 @@ class UserServiceImplTest {
     }
 
     @Test
-    void update() {
+    void updateName() {
         UserCreateDto userCreateDto = new UserCreateDto("User Useroff", "useroff@yandex.ru");
         UserDto userDto = service.create(userCreateDto);
         UserUpdateDto userUpdateDto = new UserUpdateDto(userDto.getId(), "Yandex Yandexoff", "");
@@ -62,6 +63,34 @@ class UserServiceImplTest {
         assertThat(user.getId(), equalTo(userDto.getId()));
         assertThat(user.getName(), equalTo(userUpdateDto.getName()));
         assertThat(user.getEmail(), equalTo(userCreateDto.getEmail()));
+    }
+
+    @Test
+    void updateEmail() {
+        UserCreateDto userCreateDto = new UserCreateDto("User Useroff", "useroff@yandex.ru");
+        UserDto userDto = service.create(userCreateDto);
+        UserUpdateDto userUpdateDto = new UserUpdateDto(userDto.getId(), "", "newmail@mail.ru");
+
+        service.update(userUpdateDto);
+
+        TypedQuery<User> query = em.createQuery("SELECT u FROM User u WHERE u.id = :id", User.class);
+        User user = query.setParameter("id", userDto.getId()).getSingleResult();
+
+        assertThat(user.getId(), equalTo(userDto.getId()));
+        assertThat(user.getName(), equalTo(userCreateDto.getName()));
+        assertThat(user.getEmail(), equalTo(userUpdateDto.getEmail()));
+    }
+
+    @Test
+    void updateUnknownUserMustThrownException() {
+        UserUpdateDto userUpdateDto = new UserUpdateDto(1L, "", "newmail@mail.ru");
+
+        Assertions.assertThrows(NotFoundException.class, () -> service.update(userUpdateDto));
+    }
+
+    @Test
+    void getUnknownUserMustThrownException() {
+        Assertions.assertThrows(NotFoundException.class, () -> service.getUserById(1L));
     }
 
     @Test
